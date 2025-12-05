@@ -38,6 +38,7 @@ export default function App() {
   const [currentPhaseIdx, setCurrentPhaseIdx] = useState(0);
   const [turnCount, setTurnCount] = useState(1); // Track turn number
   const [startingPlayer] = useState(1); // Track who started the game for turn cycling
+  const [pendingPhaseAdvance, setPendingPhaseAdvance] = useState(false); // Track if phase button was clicked
 
   // Settings
   const [isTabletopMode, setIsTabletopMode] = useState(true); // Flips P2 UI
@@ -92,9 +93,10 @@ export default function App() {
   const passPriority = () => {
     const newActivePlayer = activePlayer === 1 ? 2 : 1;
 
-    // If priority is being passed back to the turn player after they clicked nextPhase,
-    // advance the phase now
-    if (newActivePlayer === turnPlayer && activePlayer !== turnPlayer) {
+    // Only advance phase if:
+    // 1. We're in pending phase advance mode (phase button was clicked)
+    // 2. Priority is being passed back to the turn player
+    if (pendingPhaseAdvance && newActivePlayer === turnPlayer && activePlayer !== turnPlayer) {
       // Advance to next phase
       if (currentPhaseIdx < PHASES.length - 1) {
         setCurrentPhaseIdx(currentPhaseIdx + 1);
@@ -111,17 +113,22 @@ export default function App() {
           setTurnCount(tc => tc + 1);
         }
       }
+      // Clear the pending flag
+      setPendingPhaseAdvance(false);
     } else {
-      // Normal priority pass
+      // Normal priority pass - just switch active player
       setActivePlayer(newActivePlayer);
     }
 
     if (!isActive) setIsActive(true);
   };
 
-  // Advance Phase - Now passes priority to opponent first
+  // Advance Phase - Sets pending flag and passes priority to opponent first
   const nextPhase = (e) => {
     e.stopPropagation();
+
+    // Set flag to indicate we want to advance phase
+    setPendingPhaseAdvance(true);
 
     // Pass priority to opponent (they get a chance to respond)
     const opponent = turnPlayer === 1 ? 2 : 1;
