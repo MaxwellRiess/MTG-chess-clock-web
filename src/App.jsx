@@ -257,23 +257,25 @@ export default function App() {
         <div className="absolute inset-y-0 left-1/4 w-px bg-gray-700/30 z-5"></div>
         <div className="absolute inset-y-0 right-1/4 w-px bg-gray-700/30 z-5"></div>
 
-        {/* CONTENT LAYER (Pointer Events pass through or are handled by zones) */}
-        <div className="flex flex-col items-center pointer-events-none z-0">
+        {/* Life Counter - Anchored to Top */}
+        <div className="absolute top-6 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
+          <div className="text-4xl font-bold text-gray-300">{p2Life}</div>
+        </div>
 
-          {/* Life Total - Centered */}
-          <div className="text-4xl font-bold text-gray-300 mb-2">{p2Life}</div>
+        {/* CONTENT LAYER - Centered, avoiding edges */}
+        <div className="flex flex-col items-center justify-center pointer-events-none z-0">
+
+          {/* Priority Indicator */}
+          {activePlayer === 2 && (
+            <div className="mb-4 px-4 py-1 bg-orange-500/20 text-orange-400 rounded-full text-sm font-bold uppercase tracking-widest animate-pulse border border-orange-500/50">
+              Priority
+            </div>
+          )}
 
           {/* Timer */}
           <div className={`text-7xl md:text-9xl font-mono font-bold tracking-tighter tabular-nums ${activePlayer === 2 ? 'text-orange-500' : 'text-gray-500'}`}>
             {formatTime(p2Time)}
           </div>
-
-          {/* Priority Indicator */}
-          {activePlayer === 2 && (
-            <div className="mt-4 px-4 py-1 bg-orange-500/20 text-orange-400 rounded-full text-sm font-bold uppercase tracking-widest animate-pulse border border-orange-500/50">
-              Priority
-            </div>
-          )}
 
           {/* Turn Indicator */}
           {turnPlayer === 2 && activePlayer !== 2 && (
@@ -372,8 +374,13 @@ export default function App() {
         <div className="absolute inset-y-0 left-1/4 w-px bg-gray-700/30 z-5"></div>
         <div className="absolute inset-y-0 right-1/4 w-px bg-gray-700/30 z-5"></div>
 
-        {/* CONTENT LAYER */}
-        <div className="flex flex-col items-center pointer-events-none z-0">
+        {/* Life Counter - Anchored to Top */}
+        <div className="absolute top-6 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
+          <div className="text-4xl font-bold text-gray-300">{p1Life}</div>
+        </div>
+
+        {/* CONTENT LAYER - Centered, avoiding edges */}
+        <div className="flex flex-col items-center justify-center pointer-events-none z-0">
 
           {/* Priority Indicator */}
           {activePlayer === 1 && (
@@ -386,9 +393,6 @@ export default function App() {
           <div className={`text-7xl md:text-9xl font-mono font-bold tracking-tighter tabular-nums ${activePlayer === 1 ? 'text-blue-500' : 'text-gray-500'}`}>
             {formatTime(p1Time)}
           </div>
-
-          {/* Life Total - Centered */}
-          <div className="text-4xl font-bold text-gray-300 mt-2">{p1Life}</div>
 
           {/* Turn Indicator */}
           {turnPlayer === 1 && activePlayer !== 1 && (
