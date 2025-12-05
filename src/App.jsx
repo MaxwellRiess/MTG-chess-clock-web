@@ -14,11 +14,11 @@ import {
 } from 'lucide-react';
 
 const PHASES = [
-  { id: 'start', name: 'Start', icon: Repeat },
-  { id: 'main1', name: 'Main 1', icon: Sun },
-  { id: 'combat', name: 'Combat', icon: Swords },
-  { id: 'main2', name: 'Main 2', icon: Moon },
-  { id: 'end', name: 'End', icon: ArrowRightLeft },
+  { id: 'start', name: 'Upkeep', icon: Repeat, nextPhase: 'Pre-Combat Main' },
+  { id: 'main1', name: 'Pre-Combat Main', icon: Sun, nextPhase: 'Combat' },
+  { id: 'combat', name: 'Combat', icon: Swords, nextPhase: 'Post-Combat Main' },
+  { id: 'main2', name: 'Post-Combat Main', icon: Moon, nextPhase: 'End Turn' },
+  { id: 'end', name: 'End', icon: ArrowRightLeft, nextPhase: 'Pass Turn' },
 ];
 
 const STARTING_TIME_MINUTES = 25;
@@ -36,6 +36,7 @@ export default function App() {
   const [activePlayer, setActivePlayer] = useState(1); // Who has priority (clock running)
   const [turnPlayer, setTurnPlayer] = useState(1); // Whose actual turn it is
   const [currentPhaseIdx, setCurrentPhaseIdx] = useState(0);
+  const [turnCount, setTurnCount] = useState(1); // Track turn number
 
   // Settings
   const [isTabletopMode, setIsTabletopMode] = useState(true); // Flips P2 UI
@@ -81,6 +82,7 @@ export default function App() {
     setTurnPlayer(1);
     setActivePlayer(1);
     setCurrentPhaseIdx(0);
+    setTurnCount(1);
     setShowSettings(false);
   };
 
@@ -109,6 +111,7 @@ export default function App() {
       setTurnPlayer(nextTurnPlayer);
       setActivePlayer(nextTurnPlayer);
       setCurrentPhaseIdx(0);
+      setTurnCount(tc => tc + 1); // Increment turn counter
     }
 
     // Ensure timer is running if we click next phase
@@ -219,7 +222,14 @@ export default function App() {
           {formatTime(p2Time)}
         </div>
 
-        {/* Priority Indicator */}
+        {/* Turn Indicator (Smaller, less prominent than Priority) */}
+        {turnPlayer === 2 && activePlayer !== 2 && (
+          <div className="mt-2 px-3 py-0.5 bg-orange-900/30 text-orange-600 rounded text-xs font-semibold uppercase tracking-wider border border-orange-800/50">
+            Your Turn
+          </div>
+        )}
+
+        {/* Priority Indicator (Most Prominent) */}
         {activePlayer === 2 && (
           <div className="mt-4 px-4 py-1 bg-orange-500/20 text-orange-400 rounded-full text-sm font-bold uppercase tracking-widest animate-pulse border border-orange-500/50">
             Priority
@@ -232,6 +242,22 @@ export default function App() {
             <ShieldAlert size={16} />
             <span>Responding</span>
           </div>
+        )}
+
+        {/* Phase Button - Player 2's Turn */}
+        {turnPlayer === 2 && (
+          <button
+            onClick={nextPhase}
+            className={`
+              absolute ${isTabletopMode ? 'bottom-6 left-6' : 'top-6 right-6'}
+              flex items-center space-x-2 px-6 py-4 rounded-lg text-lg font-bold transition-all
+              bg-orange-600 text-white border-2 border-orange-400 hover:bg-orange-500 active:scale-95 shadow-lg
+              ${isTabletopMode ? 'rotate-180' : ''}
+            `}
+          >
+            <span>{PHASES[currentPhaseIdx].nextPhase}</span>
+            <ChevronRight size={20} />
+          </button>
         )}
       </div>
 
@@ -248,24 +274,16 @@ export default function App() {
           </button>
         </div>
 
-        {/* Phase Tracker */}
-        <div className="flex-1 flex justify-center">
+        {/* Phase Tracker & Turn Counter */}
+        <div className="flex-1 flex flex-col items-center justify-center space-y-1">
           <PhaseIndicator />
+          <div className="text-gray-500 text-xs font-semibold uppercase tracking-wider">
+            Turn {turnCount}
+          </div>
         </div>
 
-        {/* Next Phase Button (Context Aware) */}
-        <button
-          onClick={nextPhase}
-          className={`
-            flex items-center space-x-1 px-3 py-1.5 rounded text-sm font-bold transition-colors
-            ${turnPlayer === 1
-              ? 'bg-blue-900/50 text-blue-200 border border-blue-700 hover:bg-blue-800'
-              : 'bg-orange-900/50 text-orange-200 border border-orange-700 hover:bg-orange-800'}
-          `}
-        >
-          <span>{currentPhaseIdx === PHASES.length - 1 ? 'Pass Turn' : 'Phase'}</span>
-          <ChevronRight size={16} />
-        </button>
+        {/* Empty space for symmetry (phase button is now on player sides) */}
+        <div className="w-20"></div>
 
       </div>
 
@@ -291,7 +309,7 @@ export default function App() {
           </div>
         )}
 
-        {/* Priority Indicator */}
+        {/* Priority Indicator (Most Prominent) */}
         {activePlayer === 1 && (
           <div className="mb-4 px-4 py-1 bg-blue-500/20 text-blue-400 rounded-full text-sm font-bold uppercase tracking-widest animate-pulse border border-blue-500/50">
             Priority
@@ -301,6 +319,28 @@ export default function App() {
         <div className={`text-7xl md:text-9xl font-mono font-bold tracking-tighter tabular-nums ${activePlayer === 1 ? 'text-blue-500' : 'text-gray-500'}`}>
           {formatTime(p1Time)}
         </div>
+
+        {/* Turn Indicator (Smaller, less prominent than Priority) */}
+        {turnPlayer === 1 && activePlayer !== 1 && (
+          <div className="mt-2 px-3 py-0.5 bg-blue-900/30 text-blue-600 rounded text-xs font-semibold uppercase tracking-wider border border-blue-800/50">
+            Your Turn
+          </div>
+        )}
+
+        {/* Phase Button - Player 1's Turn */}
+        {turnPlayer === 1 && (
+          <button
+            onClick={nextPhase}
+            className="
+              absolute bottom-6 right-6
+              flex items-center space-x-2 px-6 py-4 rounded-lg text-lg font-bold transition-all
+              bg-blue-600 text-white border-2 border-blue-400 hover:bg-blue-500 active:scale-95 shadow-lg
+            "
+          >
+            <span>{PHASES[currentPhaseIdx].nextPhase}</span>
+            <ChevronRight size={20} />
+          </button>
+        )}
 
         <div className="absolute bottom-6 text-gray-500 text-xs uppercase tracking-widest">
           Tap Clock to Pass Priority
