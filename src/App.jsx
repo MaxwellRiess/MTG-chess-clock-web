@@ -268,10 +268,9 @@ export default function App() {
           <button
             onClick={nextPhase}
             className="
-              absolute top-6 right-6
+              absolute bottom-6 right-6
               flex items-center space-x-2 px-6 py-4 rounded-lg text-lg font-bold transition-all
               bg-orange-600 text-white border-2 border-orange-400 hover:bg-orange-500 active:scale-95 shadow-lg
-              rotate-180
             "
           >
             <span>Move to: {PHASES[currentPhaseIdx].nextPhase}</span>
