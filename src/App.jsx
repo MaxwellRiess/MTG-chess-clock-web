@@ -17,8 +17,7 @@ const PHASES = [
   { id: 'start', name: 'Upkeep', icon: Repeat, nextPhase: 'Pre-Combat Main' },
   { id: 'main1', name: 'Pre-Combat Main', icon: Sun, nextPhase: 'Combat' },
   { id: 'combat', name: 'Combat', icon: Swords, nextPhase: 'Post-Combat Main' },
-  { id: 'main2', name: 'Post-Combat Main', icon: Moon, nextPhase: 'End Turn' },
-  { id: 'end', name: 'End', icon: ArrowRightLeft, nextPhase: 'Pass Turn' },
+  { id: 'main2', name: 'Post-Combat Main', icon: Moon, nextPhase: 'Pass Turn' },
 ];
 
 const STARTING_TIME_MINUTES = 25;
@@ -268,12 +267,12 @@ export default function App() {
         {turnPlayer === 2 && (
           <button
             onClick={nextPhase}
-            className={`
-              absolute ${isTabletopMode ? 'bottom-6 left-6' : 'top-6 right-6'}
+            className="
+              absolute top-6 right-6
               flex items-center space-x-2 px-6 py-4 rounded-lg text-lg font-bold transition-all
               bg-orange-600 text-white border-2 border-orange-400 hover:bg-orange-500 active:scale-95 shadow-lg
-              ${isTabletopMode ? 'rotate-180' : ''}
-            `}
+              rotate-180
+            "
           >
             <span>Move to: {PHASES[currentPhaseIdx].nextPhase}</span>
             <ChevronRight size={20} />
