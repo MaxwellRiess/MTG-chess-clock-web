@@ -223,52 +223,81 @@ export default function App() {
 
       {/* --- Player 2 Area (Top) --- */}
       <div
-        onClick={() => {
-          if (activePlayer === 2) passPriority();
-        }}
         className={`
           relative flex-1 flex flex-col items-center justify-center transition-all duration-300
           ${activePlayer === 2 ? 'bg-gray-800 shadow-[inset_0_0_50px_rgba(234,88,12,0.2)]' : 'bg-gray-900 opacity-60'}
           ${isTabletopMode ? 'rotate-180' : ''}
-          cursor-pointer
         `}
       >
-        <div className="absolute top-4 left-4">
-          <LifeCounter life={p2Life} setLife={setP2Life} rotate={isTabletopMode} />
+        {/* HIT AREAS - ABSOLUTE OVERLAYS */}
+
+        {/* Left Zone - Decrease Life */}
+        <div
+          className="absolute inset-y-0 left-0 w-1/4 z-10 active:bg-red-500/10 transition-colors flex items-center justify-center"
+          onClick={(e) => { e.stopPropagation(); setP2Life(l => l - 1); }}
+        >
+          <span className="text-gray-500 font-bold text-5xl opacity-40">−</span>
         </div>
 
-        <div className={`text-7xl md:text-9xl font-mono font-bold tracking-tighter tabular-nums ${activePlayer === 2 ? 'text-orange-500' : 'text-gray-500'}`}>
-          {formatTime(p2Time)}
+        {/* Right Zone - Increase Life */}
+        <div
+          className="absolute inset-y-0 right-0 w-1/4 z-10 active:bg-green-500/10 transition-colors flex items-center justify-center"
+          onClick={(e) => { e.stopPropagation(); setP2Life(l => l + 1); }}
+        >
+          <span className="text-gray-500 font-bold text-5xl opacity-40">+</span>
         </div>
 
-        {/* Turn Indicator (Smaller, less prominent than Priority) */}
-        {turnPlayer === 2 && activePlayer !== 2 && (
-          <div className="mt-2 px-3 py-0.5 bg-orange-900/30 text-orange-600 rounded text-xs font-semibold uppercase tracking-wider border border-orange-800/50">
-            Your Turn
-          </div>
-        )}
+        {/* Center Zone - Pass Priority */}
+        <div
+          className="absolute inset-y-0 left-1/4 right-1/4 z-10"
+          onClick={() => { if (activePlayer === 2) passPriority(); }}
+        ></div>
 
-        {/* Priority Indicator (Most Prominent) */}
-        {activePlayer === 2 && (
-          <div className="mt-4 px-4 py-1 bg-orange-500/20 text-orange-400 rounded-full text-sm font-bold uppercase tracking-widest animate-pulse border border-orange-500/50">
-            Priority
+        {/* Vertical Dividers */}
+        <div className="absolute inset-y-0 left-1/4 w-px bg-gray-700/30 z-5"></div>
+        <div className="absolute inset-y-0 right-1/4 w-px bg-gray-700/30 z-5"></div>
+
+        {/* CONTENT LAYER (Pointer Events pass through or are handled by zones) */}
+        <div className="flex flex-col items-center pointer-events-none z-0">
+
+          {/* Life Total - Centered */}
+          <div className="text-4xl font-bold text-gray-300 mb-2">{p2Life}</div>
+
+          {/* Timer */}
+          <div className={`text-7xl md:text-9xl font-mono font-bold tracking-tighter tabular-nums ${activePlayer === 2 ? 'text-orange-500' : 'text-gray-500'}`}>
+            {formatTime(p2Time)}
           </div>
-        )}
+
+          {/* Priority Indicator */}
+          {activePlayer === 2 && (
+            <div className="mt-4 px-4 py-1 bg-orange-500/20 text-orange-400 rounded-full text-sm font-bold uppercase tracking-widest animate-pulse border border-orange-500/50">
+              Priority
+            </div>
+          )}
+
+          {/* Turn Indicator */}
+          {turnPlayer === 2 && activePlayer !== 2 && (
+            <div className="mt-2 px-3 py-0.5 bg-orange-900/30 text-orange-600 rounded text-xs font-semibold uppercase tracking-wider border border-orange-800/50">
+              Your Turn
+            </div>
+          )}
+        </div>
 
         {/* Stack Interaction Indicator */}
         {activePlayer === 2 && turnPlayer === 1 && (
-          <div className="absolute bottom-4 flex items-center space-x-2 text-red-400 font-bold bg-red-900/30 px-3 py-1 rounded">
+          <div className="absolute bottom-4 flex items-center space-x-2 text-red-400 font-bold bg-red-900/30 px-3 py-1 rounded z-20">
             <ShieldAlert size={16} />
             <span>Responding</span>
           </div>
         )}
 
         {/* Phase Button - Player 2's Turn */}
+        {/* Adjusted bottom position to 16 (4rem) to clear notch/camera island */}
         {turnPlayer === 2 && (
           <button
             onClick={nextPhase}
             className="
-              absolute bottom-6 right-6
+              absolute bottom-16 right-6 z-20 pointer-events-auto
               flex items-center space-x-2 px-6 py-4 rounded-lg text-lg font-bold transition-all
               bg-orange-600 text-white border-2 border-orange-400 hover:bg-orange-500 active:scale-95 shadow-lg
             "
@@ -280,7 +309,7 @@ export default function App() {
       </div>
 
       {/* --- Central Control Strip --- */}
-      <div className="h-16 bg-black flex items-center justify-between px-4 border-y border-gray-800 z-10">
+      <div className="h-16 bg-black flex items-center justify-between px-4 border-y border-gray-800 z-30">
 
         {/* Pause / Settings */}
         <div className="flex space-x-2">
@@ -310,41 +339,70 @@ export default function App() {
 
       {/* --- Player 1 Area (Bottom) --- */}
       <div
-        onClick={() => {
-          if (activePlayer === 1) passPriority();
-        }}
         className={`
-          relative flex-1 flex flex-col items-center justify-center transition-all duration-300 cursor-pointer
+          relative flex-1 flex flex-col items-center justify-center transition-all duration-300
           ${activePlayer === 1 ? 'bg-gray-800 shadow-[inset_0_0_50px_rgba(37,99,235,0.2)]' : 'bg-gray-900 opacity-60'}
         `}
       >
-        <div className="absolute top-4 right-4">
-          <LifeCounter life={p1Life} setLife={setP1Life} rotate={false} />
+        {/* HIT AREAS - ABSOLUTE OVERLAYS */}
+
+        {/* Left Zone - Decrease Life */}
+        <div
+          className="absolute inset-y-0 left-0 w-1/4 z-10 active:bg-red-500/10 transition-colors flex items-center justify-center cursor-pointer"
+          onClick={(e) => { e.stopPropagation(); setP1Life(l => l - 1); }}
+        >
+          <span className="text-gray-500 font-bold text-5xl opacity-40">−</span>
+        </div>
+
+        {/* Right Zone - Increase Life */}
+        <div
+          className="absolute inset-y-0 right-0 w-1/4 z-10 active:bg-green-500/10 transition-colors flex items-center justify-center cursor-pointer"
+          onClick={(e) => { e.stopPropagation(); setP1Life(l => l + 1); }}
+        >
+          <span className="text-gray-500 font-bold text-5xl opacity-40">+</span>
+        </div>
+
+        {/* Center Zone - Pass Priority */}
+        <div
+          className="absolute inset-y-0 left-1/4 right-1/4 z-10 cursor-pointer"
+          onClick={() => { if (activePlayer === 1) passPriority(); }}
+        ></div>
+
+        {/* Vertical Dividers */}
+        <div className="absolute inset-y-0 left-1/4 w-px bg-gray-700/30 z-5"></div>
+        <div className="absolute inset-y-0 right-1/4 w-px bg-gray-700/30 z-5"></div>
+
+        {/* CONTENT LAYER */}
+        <div className="flex flex-col items-center pointer-events-none z-0">
+
+          {/* Priority Indicator */}
+          {activePlayer === 1 && (
+            <div className="mb-4 px-4 py-1 bg-blue-500/20 text-blue-400 rounded-full text-sm font-bold uppercase tracking-widest animate-pulse border border-blue-500/50">
+              Priority
+            </div>
+          )}
+
+          {/* Timer */}
+          <div className={`text-7xl md:text-9xl font-mono font-bold tracking-tighter tabular-nums ${activePlayer === 1 ? 'text-blue-500' : 'text-gray-500'}`}>
+            {formatTime(p1Time)}
+          </div>
+
+          {/* Life Total - Centered */}
+          <div className="text-4xl font-bold text-gray-300 mt-2">{p1Life}</div>
+
+          {/* Turn Indicator */}
+          {turnPlayer === 1 && activePlayer !== 1 && (
+            <div className="mt-2 px-3 py-0.5 bg-blue-900/30 text-blue-600 rounded text-xs font-semibold uppercase tracking-wider border border-blue-800/50">
+              Your Turn
+            </div>
+          )}
         </div>
 
         {/* Stack Interaction Indicator */}
         {activePlayer === 1 && turnPlayer === 2 && (
-          <div className="absolute top-20 flex items-center space-x-2 text-red-400 font-bold bg-red-900/30 px-3 py-1 rounded">
+          <div className="absolute top-20 flex items-center space-x-2 text-red-400 font-bold bg-red-900/30 px-3 py-1 rounded z-20">
             <ShieldAlert size={16} />
             <span>Responding</span>
-          </div>
-        )}
-
-        {/* Priority Indicator (Most Prominent) */}
-        {activePlayer === 1 && (
-          <div className="mb-4 px-4 py-1 bg-blue-500/20 text-blue-400 rounded-full text-sm font-bold uppercase tracking-widest animate-pulse border border-blue-500/50">
-            Priority
-          </div>
-        )}
-
-        <div className={`text-7xl md:text-9xl font-mono font-bold tracking-tighter tabular-nums ${activePlayer === 1 ? 'text-blue-500' : 'text-gray-500'}`}>
-          {formatTime(p1Time)}
-        </div>
-
-        {/* Turn Indicator (Smaller, less prominent than Priority) */}
-        {turnPlayer === 1 && activePlayer !== 1 && (
-          <div className="mt-2 px-3 py-0.5 bg-blue-900/30 text-blue-600 rounded text-xs font-semibold uppercase tracking-wider border border-blue-800/50">
-            Your Turn
           </div>
         )}
 
@@ -353,7 +411,7 @@ export default function App() {
           <button
             onClick={nextPhase}
             className="
-              absolute bottom-6 right-6
+              absolute bottom-6 right-6 z-20 pointer-events-auto
               flex items-center space-x-2 px-6 py-4 rounded-lg text-lg font-bold transition-all
               bg-blue-600 text-white border-2 border-blue-400 hover:bg-blue-500 active:scale-95 shadow-lg
             "
@@ -363,8 +421,8 @@ export default function App() {
           </button>
         )}
 
-        <div className="absolute bottom-6 text-gray-500 text-xs uppercase tracking-widest">
-          Tap Clock to Pass Priority
+        <div className="absolute bottom-6 text-gray-500 text-xs uppercase tracking-widest pointer-events-none">
+          Tap Center to Pass Priority
         </div>
       </div>
 
