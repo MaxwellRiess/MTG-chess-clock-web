@@ -34,3 +34,13 @@ coverage/
 
 # Misc
 *.tsbuildinfo
+
+# iOS (Capacitor)
+ios/App/Pods/
+ios/App/Podfile.lock
+ios/App/App/public/
+ios/App/build/
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+DerivedData/

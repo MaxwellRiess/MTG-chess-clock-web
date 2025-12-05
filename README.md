@@ -64,11 +64,38 @@ Click the settings icon to:
 - **Lucide React** - Icons
 - **PostCSS** - CSS processing
 
-## Development Commands
-
 - `npm run dev` - Start development server
 - `npm run build` - Build for production
 - `npm run preview` - Preview production build
+- `npm run ios:sync` - Build web app and sync to iOS
+- `npm run ios:open` - Open iOS project in Xcode
+
+## iOS App
+
+This project includes iOS app support via Capacitor. The same codebase powers both the web version and the native iOS app.
+
+### iOS Development
+
+1. **Build and sync to iOS**:
+```bash
+npm run ios:sync
+```
+
+2. **Open in Xcode**:
+```bash
+npm run ios:open
+```
+
+3. **Run on simulator or device** from Xcode (⌘R)
+
+### Publishing to App Store
+
+- Requires Apple Developer account ($99/year)
+- Build and archive in Xcode
+- Upload to App Store Connect
+- Submit for review
+
+**Note**: The web version continues to deploy automatically to Vercel. iOS and web deployments are independent.
 
 ## License
 
