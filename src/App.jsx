@@ -37,6 +37,7 @@ export default function App() {
   const [turnPlayer, setTurnPlayer] = useState(1); // Whose actual turn it is
   const [currentPhaseIdx, setCurrentPhaseIdx] = useState(0);
   const [turnCount, setTurnCount] = useState(1); // Track turn number
+  const [startingPlayer] = useState(1); // Track who started the game for turn cycling
 
   // Settings
   const [isTabletopMode, setIsTabletopMode] = useState(true); // Flips P2 UI
@@ -87,34 +88,46 @@ export default function App() {
   };
 
   // Switch Priority (The Clock Tap)
+  // Pass Priority - Now handles phase advancement when appropriate
   const passPriority = () => {
+    const newActivePlayer = activePlayer === 1 ? 2 : 1;
+
+    // If priority is being passed back to the turn player after they clicked nextPhase,
+    // advance the phase now
+    if (newActivePlayer === turnPlayer && activePlayer !== turnPlayer) {
+      // Advance to next phase
+      if (currentPhaseIdx < PHASES.length - 1) {
+        setCurrentPhaseIdx(currentPhaseIdx + 1);
+        setActivePlayer(turnPlayer);
+      } else {
+        // End of turn, pass turn to opponent
+        const nextTurnPlayer = turnPlayer === 1 ? 2 : 1;
+        setTurnPlayer(nextTurnPlayer);
+        setActivePlayer(nextTurnPlayer);
+        setCurrentPhaseIdx(0);
+
+        // Increment turn counter only when turn comes back to starting player (full cycle)
+        if (nextTurnPlayer === startingPlayer) {
+          setTurnCount(tc => tc + 1);
+        }
+      }
+    } else {
+      // Normal priority pass
+      setActivePlayer(newActivePlayer);
+    }
+
     if (!isActive) setIsActive(true);
-    setActivePlayer(activePlayer === 1 ? 2 : 1);
   };
 
-  // Advance Phase
+  // Advance Phase - Now passes priority to opponent first
   const nextPhase = (e) => {
     e.stopPropagation();
 
-    // Logic: 
-    // 1. Move to next phase
-    // 2. Reset Priority to the Turn Player (usually)
-    // 3. If at End Step, Loop to next Turn
+    // Pass priority to opponent (they get a chance to respond)
+    const opponent = turnPlayer === 1 ? 2 : 1;
+    setActivePlayer(opponent);
 
-    if (currentPhaseIdx < PHASES.length - 1) {
-      setCurrentPhaseIdx(currentPhaseIdx + 1);
-      // When moving phase, priority typically goes back to turn player first
-      setActivePlayer(turnPlayer);
-    } else {
-      // End of turn, pass turn
-      const nextTurnPlayer = turnPlayer === 1 ? 2 : 1;
-      setTurnPlayer(nextTurnPlayer);
-      setActivePlayer(nextTurnPlayer);
-      setCurrentPhaseIdx(0);
-      setTurnCount(tc => tc + 1); // Increment turn counter
-    }
-
-    // Ensure timer is running if we click next phase
+    // Ensure timer is running
     if (!isActive) setIsActive(true);
   };
 
@@ -255,7 +268,7 @@ export default function App() {
               ${isTabletopMode ? 'rotate-180' : ''}
             `}
           >
-            <span>{PHASES[currentPhaseIdx].nextPhase}</span>
+            <span>Move to: {PHASES[currentPhaseIdx].nextPhase}</span>
             <ChevronRight size={20} />
           </button>
         )}
@@ -274,16 +287,19 @@ export default function App() {
           </button>
         </div>
 
-        {/* Phase Tracker & Turn Counter */}
+        {/* Phase Tracker & Current Phase Name */}
         <div className="flex-1 flex flex-col items-center justify-center space-y-1">
           <PhaseIndicator />
-          <div className="text-gray-500 text-xs font-semibold uppercase tracking-wider">
-            Turn {turnCount}
+          <div className="text-gray-400 text-sm font-semibold">
+            {PHASES[currentPhaseIdx].name}
           </div>
         </div>
 
-        {/* Empty space for symmetry (phase button is now on player sides) */}
-        <div className="w-20"></div>
+        {/* Turn Counter */}
+        <div className="flex items-center space-x-2 px-3 py-1 bg-gray-900 rounded border border-gray-700">
+          <div className="text-gray-400 text-xs uppercase tracking-wider">Turn</div>
+          <div className="text-white text-lg font-bold">{turnCount}</div>
+        </div>
 
       </div>
 
@@ -337,7 +353,7 @@ export default function App() {
               bg-blue-600 text-white border-2 border-blue-400 hover:bg-blue-500 active:scale-95 shadow-lg
             "
           >
-            <span>{PHASES[currentPhaseIdx].nextPhase}</span>
+            <span>Move to: {PHASES[currentPhaseIdx].nextPhase}</span>
             <ChevronRight size={20} />
           </button>
         )}
